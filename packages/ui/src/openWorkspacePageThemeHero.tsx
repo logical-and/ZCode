@@ -49,6 +49,17 @@ function getThemeHeroPalette(theme: Theme): ThemeHeroPalette {
         heading: "text-[#F8F8F8]",
         description: "text-[#ADADAD]",
       };
+    case "burnt-toast":
+      return {
+        meshBase: "#2a1d17",
+        meshLight: "#e08a5f",
+        panel:
+          "bg-[linear-gradient(180deg,#1c1a18_0%,#24201d_42%,#3a2419_100%)] before:absolute before:inset-0 before:content-[''] before:bg-[radial-gradient(circle_at_18%_18%,rgba(217,119,87,0.16),transparent_24%),radial-gradient(circle_at_82%_12%,rgba(224,138,95,0.18),transparent_26%),radial-gradient(circle_at_66%_84%,rgba(240,180,140,0.12),transparent_28%)]",
+        glowPrimary: "bg-[#D97757]/22 mix-blend-screen",
+        glowSecondary: "bg-[#E08A5F]/14 mix-blend-screen",
+        heading: "text-[#F2EEE9]",
+        description: "text-[#B5ADA5]",
+      };
     case "dark":
     case "system":
     default:

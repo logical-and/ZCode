@@ -691,7 +691,10 @@ export function PermissionDialog({
   const shouldUseSaveWorkflowBlock = blockKind === "saveWorkflow";
   return (
     <div className="w-full shrink-0 relative z-1">
-      <div className="w-full overflow-hidden rounded-2xl border border-border bg-popover shadow-xs">
+      <div
+        data-permission-request="true"
+        className="w-full overflow-hidden rounded-2xl border border-border bg-popover shadow-xs theme-burnt-toast:rounded-xl"
+      >
         <div className="flex flex-col gap-3 p-3">
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">

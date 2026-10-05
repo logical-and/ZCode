@@ -97,7 +97,7 @@ import { useWorkspaceOpenInEditorTarget } from "@/hooks/useWorkspaceOpenInEditor
 import { useOptionalServices } from "@/hooks/useServices.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { logger } from "@/logger.js";
-import type { Theme } from "@/useTheme.js";
+import { isDarkThemePreference, type Theme } from "@/useTheme.js";
 import { createZCodeFileCitationRemarkPlugin } from "@/lib/zcodeFileCitationRemarkPlugin.js";
 import { windowsFileLinkEscapeRemarkPlugin } from "@/lib/windowsFileLinkEscapeRemarkPlugin.js";
 import { projectZCodeFileCitations } from "@/lib/zcodeFileCitation.js";
@@ -849,7 +849,7 @@ function resolveMessageCodeTheme(
       : codePreviewSettings.lightTheme;
   }
 
-  return theme === "dark" || theme === "zai-dark"
+  return isDarkThemePreference(theme)
     ? codePreviewSettings.darkTheme
     : codePreviewSettings.lightTheme;
 }
@@ -1367,6 +1367,8 @@ export const MessageResponse = memo(
     const responseClassName = cn(
       "size-full text-ui-base leading-[1.75] tracking-wide [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
       className,
+      // Burnt Toast：更紧凑的正文行高与段距。
+      "theme-burnt-toast:space-y-3 theme-burnt-toast:leading-[1.5] theme-burnt-toast:tracking-normal",
     );
     const fallbackClassName = cn(responseClassName, "whitespace-pre-wrap break-words");
     const boundaryResetKey = useMemo(
@@ -1546,6 +1548,8 @@ export const MessageResponse = memo(
               <code
                 className={cn(
                   "rounded-md bg-markdown-inline-code/50 mx-0.5 px-1.5 py-0.5 font-mono text-ui-sm",
+                  // Burnt Toast：行内代码改为暖橙色文字、去掉底色块（接近终端里的代码/路径高亮）。
+                  "theme-burnt-toast:mx-0 theme-burnt-toast:bg-transparent theme-burnt-toast:px-0.5 theme-burnt-toast:py-0 theme-burnt-toast:text-[var(--bt-code)]",
                   codeClassName,
                 )}
                 {...codeProps}
@@ -1560,7 +1564,7 @@ export const MessageResponse = memo(
 
           return (
             <CodeBlock
-              className="my-4 border border-border bg-card"
+              className="my-4 border border-border bg-card theme-burnt-toast:my-3 theme-burnt-toast:rounded-lg theme-burnt-toast:bg-[var(--bt-code-block-bg)]"
               code={codeText}
               // 流式消息里的代码围栏会被 Streamdown 反复拆分/重挂载。
               // 高亮等消息完成后再启动，避免 async highlighter 和消息流更新叠加触发 React #185。

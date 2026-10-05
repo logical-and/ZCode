@@ -562,6 +562,20 @@ function OffPeakTurnCards({
   );
 }
 
+// Burnt Toast 的轮次标题着色：运行中若有工具在等待审批/输入，显示“等待”而不是“运行中”。
+function resolveHistoryWorkState(segment: ConversationTurnWorkSegment): string {
+  const state = segment.workStatus?.state ?? "completed";
+  if (
+    state === "running" &&
+    segment.assistantWorkRows.some(
+      (row) => row.kind === "toolCall" && row.status === "pendingApproval",
+    )
+  ) {
+    return "waiting";
+  }
+  return state;
+}
+
 function AssistantHistoryStatus({
   segment,
   open,
@@ -591,9 +605,11 @@ function AssistantHistoryStatus({
           type="button"
           data-testid={testId(TID_CHAT_ASSISTANT_HISTORY_TRIGGER, segment.key)}
           data-history-open={String(open)}
+          data-work-state={resolveHistoryWorkState(segment)}
           className="group/history-message inline-flex max-w-full items-center gap-2 text-left text-ui-base text-foreground-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-border-focused)]"
         >
-          <span className="truncate">{label}</span>
+          {/* Burnt Toast 按 data-work-state 给文案着色（运行中轻微呼吸），不再单独画状态点。 */}
+          <span className="work-status-label truncate">{label}</span>
           {!segment.assistantHistoryDefaultOpen ? (
             <ChevronRightIcon
               aria-hidden

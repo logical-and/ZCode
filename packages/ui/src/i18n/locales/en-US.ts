@@ -2053,6 +2053,7 @@ const enUS: Record<string, string> = {
   "settings.themeMode.zai-light": "Light",
   "settings.themeMode.zai-dark": "Dark",
   "settings.themeMode.system": "System",
+  "settings.themeMode.burnt-toast": "Burnt Toast",
   "settings.appearanceTitle": "Appearance",
   "settings.shortcuts.title": "Keyboard Shortcuts",
   "settings.shortcuts.searchPlaceholder": "Search shortcuts",
@@ -2290,6 +2291,7 @@ const enUS: Record<string, string> = {
   "sidebar.settings.theme.zai-light": "Light theme",
   "sidebar.settings.theme.zai-dark": "Dark theme",
   "sidebar.settings.theme.dark": "Dark theme",
+  "sidebar.settings.theme.burnt-toast": "Burnt Toast",
   "settings.migration.title": "Migration",
   "settings.migration.sectionTitle": "Claude History Migration",
   "settings.migration.sectionDescription":

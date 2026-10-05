@@ -30,6 +30,21 @@ export function deriveTaskLeadingIndicator(
   return "none";
 }
 
+/** Burnt Toast 侧栏左侧状态点；取值与 burnt-toast-theme.css 的状态色图例（data-bt-status）一致。 */
+export type TaskThemeLeadingStatus = "failed" | "waiting" | "running" | "unread" | "idle";
+
+export function deriveTaskThemeLeadingStatus(
+  leadingIndicator: ReturnType<typeof deriveTaskLeadingIndicator>,
+  hasPendingInteraction: boolean,
+): TaskThemeLeadingStatus {
+  if (leadingIndicator === "error") return "failed";
+  // 等待确认优先于运行中/未读：这是唯一需要用户动作的状态。
+  if (hasPendingInteraction) return "waiting";
+  if (leadingIndicator === "loading") return "running";
+  if (leadingIndicator === "unread") return "unread";
+  return "idle";
+}
+
 export function formatTaskRelativeTime(
   timestamp: number,
   intl: {

@@ -1927,6 +1927,7 @@ const zhCN: Record<string, string> = {
   "settings.themeMode.zai-light": "浅色",
   "settings.themeMode.zai-dark": "深色",
   "settings.themeMode.system": "系统",
+  "settings.themeMode.burnt-toast": "焦糖吐司",
   "settings.appearanceTitle": "外观",
   "settings.shortcuts.title": "键盘快捷键",
   "settings.shortcuts.searchPlaceholder": "搜索快捷键",
@@ -2152,6 +2153,7 @@ const zhCN: Record<string, string> = {
   "sidebar.settings.theme.zai-light": "浅色主题",
   "sidebar.settings.theme.zai-dark": "深色主题",
   "sidebar.settings.theme.dark": "深色主题",
+  "sidebar.settings.theme.burnt-toast": "焦糖吐司",
   "settings.migration.title": "迁移",
   "settings.migration.sectionTitle": "Claude 历史迁移",
   "settings.migration.sectionDescription":
