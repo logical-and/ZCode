@@ -2114,13 +2114,20 @@ const enUS: Record<string, string> = {
   "settings.shortcuts.command.zoomOut": "Zoom Out",
   "settings.shortcuts.command.resetZoom": "Reset Zoom",
   "settings.appearance.interfaceTitle": "Interface Setting",
-  "settings.appearance.interfaceDescription": "Choose the app theme and interface text size.",
+  "settings.appearance.interfaceDescription":
+    "Choose the app theme, interface text size, and conversation width.",
   "settings.appearance.codeTitle": "Code settings",
   "settings.appearance.codeDescription":
     "Choose code themes, font size, and display options independently from the interface font size.",
   "settings.uiFontSize": "UI font size",
   "settings.uiFontSizeDescription":
     "Adjust interface text without changing icons or layout dimensions.",
+  "settings.transcriptWidth": "Transcript width",
+  "settings.transcriptWidthDescription":
+    "Width of the conversation column: messages, tool calls, and the input box.",
+  "settings.transcriptWidth.wide": "Wide",
+  "settings.transcriptWidth.medium": "Medium",
+  "settings.transcriptWidth.narrow": "Narrow",
   "settings.systemTitle": "General",
   "settings.systemDescription": "These preferences affect the current window experience.",
   "settings.locale": "Language",

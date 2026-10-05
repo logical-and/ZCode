@@ -343,6 +343,8 @@ export function SettingsPage({
   const setCodePreviewSettings = useZCodeStore((state) => state.setCodePreviewSettings);
   const uiFontSizePx = useZCodeStore((state) => state.uiFontSizePx);
   const setUiFontSizePx = useZCodeStore((state) => state.setUiFontSizePx);
+  const transcriptWidth = useZCodeStore((state) => state.transcriptWidth);
+  const setTranscriptWidth = useZCodeStore((state) => state.setTranscriptWidth);
   const notificationEnabled = useZCodeStore((state) => state.notificationEnabled);
   const setNotificationEnabled = useZCodeStore((state) => state.setNotificationEnabled);
   const notificationSoundEnabled = useZCodeStore((state) => state.notificationSoundEnabled);
@@ -1800,6 +1802,19 @@ export function SettingsPage({
                                   resultSource: "local_commit",
                                   valueAfter: String(fontSizePx),
                                 },
+                                failureStage: "local_commit",
+                              })
+                            }
+                            transcriptWidth={transcriptWidth}
+                            setTranscriptWidth={(width) =>
+                              runUserAction({
+                                input: {
+                                  featureId: "settings.appearance",
+                                  action: "change_transcript_width",
+                                  trigger: "select",
+                                },
+                                operation: () => setTranscriptWidth(width),
+                                completed: { resultSource: "local_commit", valueAfter: width },
                                 failureStage: "local_commit",
                               })
                             }

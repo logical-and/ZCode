@@ -22,6 +22,11 @@ import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import type { CodePreviewSettings } from "@/store/index.js";
 import { THEME_MODES } from "@/settings/settingsPageConfig.js";
 import { MAX_UI_FONT_SIZE_PX, MIN_UI_FONT_SIZE_PX } from "@/lib/uiFontSize.js";
+import {
+  normalizeTranscriptWidth,
+  TRANSCRIPT_WIDTHS,
+  type TranscriptWidth,
+} from "@/lib/transcriptWidth.js";
 
 function FontSizeInput({
   value,
@@ -85,6 +90,8 @@ export function AppearanceSectionContent({
   setTheme,
   uiFontSizePx,
   setUiFontSizePx,
+  transcriptWidth,
+  setTranscriptWidth,
 }: {
   codePreviewSettings: CodePreviewSettings;
   setCodePreviewSettings: (settings: Partial<CodePreviewSettings>) => void;
@@ -92,6 +99,8 @@ export function AppearanceSectionContent({
   setTheme: (theme: Theme) => void;
   uiFontSizePx: number;
   setUiFontSizePx: (fontSizePx: number) => void;
+  transcriptWidth: TranscriptWidth;
+  setTranscriptWidth: (width: TranscriptWidth) => void;
 }) {
   const { intl } = useZCodeIntl();
   const activePreviewMode = resolveTheme(theme);
@@ -150,6 +159,33 @@ export function AppearanceSectionContent({
                   onChange={setUiFontSizePx}
                   ariaLabel={intl.formatMessage({ id: "settings.uiFontSize" })}
                 />
+              }
+            />
+            <SettingsRow
+              label={intl.formatMessage({ id: "settings.transcriptWidth" })}
+              description={intl.formatMessage({
+                id: "settings.transcriptWidthDescription",
+              })}
+              control={
+                <Select
+                  value={transcriptWidth}
+                  onValueChange={(value) => setTranscriptWidth(normalizeTranscriptWidth(value))}
+                >
+                  <SelectTrigger
+                    size="lg"
+                    className="w-[260px] min-w-0 justify-between"
+                    aria-label={intl.formatMessage({ id: "settings.transcriptWidth" })}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TRANSCRIPT_WIDTHS.map((width) => (
+                      <SelectItem key={width} value={width}>
+                        {intl.formatMessage({ id: `settings.transcriptWidth.${width}` })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               }
             />
           </CardContent>

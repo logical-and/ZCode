@@ -35,6 +35,8 @@ import { ConversationTurnGroup } from "@/v4/ConversationTurnGroup.js";
 import { ConversationPendingGuideList } from "@/v4/ConversationPendingGuideList.js";
 import type { AssistantFeedbackHandler } from "@/v4/ConversationRowView.js";
 import { ConversationTurnNavigator } from "@/v4/ConversationTurnNavigator.js";
+import { useZCodeStoreWithDefault } from "@/store/StoreProvider.js";
+import { DEFAULT_TRANSCRIPT_WIDTH } from "@/lib/transcriptWidth.js";
 import { syncConversationShareSelectionPanelLayout } from "@/v4/conversationShareSelectionPanelLayout.js";
 import type { ConversationRowRenderContext } from "@/v4/conversationRowContext.js";
 import { splitConversationTimelineLiveTail } from "@/v4/conversationTimelineLiveTail.js";
@@ -521,9 +523,15 @@ function ConversationTimelineImpl({
   // 否则面板会覆盖正文，而不是并排布局。
   const summaryPanelInlineOffsetClassName =
     getConversationStatusPanelOffsetClassName(summaryPanelLayout);
+  // 外观设置中的正文列宽度；消息、工具行和输入框共用同一宽度类，保证对齐。
+  const transcriptWidth = useZCodeStoreWithDefault(
+    (state) => state.transcriptWidth,
+    DEFAULT_TRANSCRIPT_WIDTH,
+  );
   const contentWidthClassName = getConversationContentWidthClassName({
     centeredEmptyLayout,
     statusPanelLayout: summaryPanelLayout,
+    transcriptWidth,
   });
 
   const syncShareSelectionPanelLayout = useCallback(() => {

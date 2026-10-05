@@ -58,6 +58,7 @@ export const SETTINGS_USER_ACTION_FEATURES = {
   "settings.appearance": [
     "change_theme",
     "change_ui_font_size",
+    "change_transcript_width",
     "change_code_light_theme",
     "change_code_dark_theme",
     "toggle_code_line_numbers",
