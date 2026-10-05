@@ -276,8 +276,10 @@
 
 /* === 用户消息气泡 ===
  * 收紧内边距与轮次之间的留白（默认每轮顶部 56px），放宽最大宽度，让每行容纳更多文字。
- * 只匹配带 pt-14 的轮次：以工作流通知卡开头的轮次本来就是 pt-0。 */
-.theme-burnt-toast section[data-turn-id].pt-14 {
+ * 只匹配带 pt-14 的轮次：以工作流通知卡开头的轮次本来就是 pt-0。
+ * 列表第一轮保留默认 56px：右上角浮动的 Changes 状态胶囊（pt-4 + h-8）占据视口顶部约 48px，
+ * 收紧后第一条消息气泡会顶到胶囊下面被遮住右端。 */
+.theme-burnt-toast [data-v4-turn-unit]:not([data-index="0"]) > section[data-turn-id].pt-14 {
   padding-top: 1.5rem;
 }
 
@@ -292,7 +294,9 @@
  * grid dense：其余子项（附件、状态）仍各占整行靠右，按钮回填到气泡所在行的左列。 */
 .theme-burnt-toast [data-row-id].group\/user-row {
   display: grid;
-  grid-template-columns: minmax(min-content, 1fr) auto;
+  /* 气泡列最小值为 0：auto 列会以气泡的 min-content 为下限，长 URL/路径或不换行的提及标签
+   * 会把整行撑出会话列。 */
+  grid-template-columns: minmax(min-content, 1fr) minmax(0, auto);
   grid-auto-flow: row dense;
   column-gap: 0.25rem;
   align-items: end;
@@ -305,6 +309,9 @@
 
 .theme-burnt-toast [data-row-id].group\/user-row > [data-v4-user-input-bubble] {
   grid-column: 2;
+  /* 填满气泡列（列宽已按内容 max-content 与 max-width 计算）。grid 子项默认的 fit-content
+   * 宽度以 min-content 为下限，长 token 仍会溢出到左侧按钮上。 */
+  width: 100%;
 }
 
 .theme-burnt-toast [data-row-id].group\/user-row > [data-v4-user-input-actions] {
