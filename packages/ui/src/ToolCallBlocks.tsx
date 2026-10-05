@@ -70,6 +70,22 @@ function isAgentToolCall(toolCall: TaskChatToolCallTreeNode["toolCall"]): boolea
   return resolveToolCallIdentity(toolCall).family === "agent";
 }
 
+// v4 行在等待权限确认/用户输入时状态为 pendingApproval（由 projection 根据待处理的权限请求写入，
+// 行上的 approvalInteractionId 指向 pendingInteractions 项），但旧 status 词表把它并进了 "pending"，
+// 与流式输入中无法区分。单独标出该状态，供主题给出“等待审批”的状态色；分组容器在任一子工具
+// 等待审批时同样标出，否则折叠的分组行只显示“运行中”。
+function isToolCallAwaitingApproval(node: TaskChatToolCallTreeNode): boolean {
+  const raw: unknown = node.toolCall.raw;
+  if (
+    typeof raw === "object" &&
+    raw !== null &&
+    (raw as { v4Status?: unknown }).v4Status === "pendingApproval"
+  ) {
+    return true;
+  }
+  return node.childToolCalls.some(isToolCallAwaitingApproval);
+}
+
 function ToolCallBlockComponent({
   toolCallNode,
   depth = 0,
@@ -373,6 +389,7 @@ function ToolCallBlockComponent({
       data-tool-call-id={toolCall.toolId}
       data-tool-name={toolCall.toolName ?? toolCall.kind ?? ""}
       data-status={toolCall.status}
+      data-awaiting-approval={isToolCallAwaitingApproval(toolCallNode) ? "true" : undefined}
       data-zcode-tool-stream-animate={shouldPlayEntranceAnimation ? "true" : undefined}
     >
       {toolCall.kind === "cuaGroup" ? (

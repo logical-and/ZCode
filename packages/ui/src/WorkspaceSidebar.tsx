@@ -108,7 +108,7 @@ import {
   persistGroupedTaskCollapsedGroupIds,
   readGroupedTaskCollapsedGroupIds,
 } from "@/lib/groupedTaskExpansionPreference.js";
-import type { Theme } from "@/useTheme.js";
+import { isTheme, type Theme } from "@/useTheme.js";
 import type { RemoteConnectionLogEntry } from "@/hooks/useRemoteConnectionLogs.js";
 import type { CodeViewerSource } from "@/lib/codeViewer.js";
 import { WorkspaceFileTree } from "@/WorkspaceFileTree.js";
@@ -723,13 +723,7 @@ export const WorkspaceSidebar = memo(function WorkspaceSidebarComponent({
 
   const handleThemeChange = useCallback(
     (value: string) => {
-      if (
-        value === "light" ||
-        value === "dark" ||
-        value === "zai-light" ||
-        value === "zai-dark" ||
-        value === "system"
-      ) {
+      if (isTheme(value)) {
         setTheme(value);
       }
     },

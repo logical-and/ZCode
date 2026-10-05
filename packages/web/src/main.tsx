@@ -48,7 +48,7 @@ function resolveWebThemePreference(defaultTheme: Theme = WEB_DEFAULT_THEME): The
       ? window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light"
-      : saved === "dark" || saved === "zai-dark"
+      : saved === "dark" || saved === "zai-dark" || saved === "burnt-toast"
         ? "dark"
         : "light";
   const appliedTheme =
@@ -56,7 +56,7 @@ function resolveWebThemePreference(defaultTheme: Theme = WEB_DEFAULT_THEME): The
       ? resolved === "dark"
         ? "zai-dark"
         : "zai-light"
-      : saved === "dark"
+      : saved === "dark" || saved === "burnt-toast"
         ? "zai-dark"
         : saved === "light"
           ? "zai-light"
@@ -64,6 +64,7 @@ function resolveWebThemePreference(defaultTheme: Theme = WEB_DEFAULT_THEME): The
   document.documentElement.classList.toggle("dark", resolved === "dark");
   document.documentElement.classList.toggle("theme-zai-light", appliedTheme === "zai-light");
   document.documentElement.classList.toggle("theme-zai-dark", appliedTheme === "zai-dark");
+  document.documentElement.classList.toggle("theme-burnt-toast", saved === "burnt-toast");
 }
 
 async function resolveFeedbackUrl(): Promise<string | undefined> {

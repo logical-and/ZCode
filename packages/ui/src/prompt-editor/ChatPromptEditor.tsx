@@ -345,13 +345,15 @@ export function ChatPromptEditor({
         onDrop={handleDrop}
         className={cn(
           "relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-input-border bg-input p-3 transition-colors hover:border-input-border-hover focus-within:!border-input-border-focused focus-within:bg-input-focused",
+          // Burnt Toast：更紧凑的输入框（内边距与行距收窄）。
+          "theme-burnt-toast:gap-2 theme-burnt-toast:rounded-xl theme-burnt-toast:px-3 theme-burnt-toast:py-2",
           (isWorkspaceFileDropActive || isExternalFileDropActive) &&
             "border-brand bg-input-focused ring-1 ring-brand/30",
           shellClassName,
         )}
       >
         {draggingOverlayHint ? (
-          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-accent/55 backdrop-blur-sm">
+          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-accent/55 backdrop-blur-sm theme-burnt-toast:rounded-xl">
             <div className="flex items-center gap-2 rounded-full border border-border bg-accent px-4 py-2 text-ui-base text-foreground shadow-sm">
               <Hand className="size-4 text-foreground" />
               <span>{draggingOverlayHint}</span>

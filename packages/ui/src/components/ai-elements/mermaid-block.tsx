@@ -8,7 +8,7 @@ import { cn } from "@/components/lib/utils.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { logger } from "@/logger.js";
 import type { Theme } from "@/useTheme.js";
-import { resolveTheme } from "@/useTheme.js";
+import { isDarkThemePreference, resolveTheme } from "@/useTheme.js";
 
 type MermaidRenderState =
   | {
@@ -191,7 +191,7 @@ function createMermaidConfig(resolvedTheme: "light" | "dark"): MermaidConfig {
 
 function resolveBrowserTheme(theme: Theme): "light" | "dark" {
   if (typeof window === "undefined") {
-    return theme === "dark" || theme === "zai-dark" ? "dark" : "light";
+    return isDarkThemePreference(theme) ? "dark" : "light";
   }
 
   return resolveTheme(theme);

@@ -20,6 +20,7 @@ import { getPathLeaf } from "@/lib/path.js";
 import { formatTaskTitleWithChanges, getTaskChangeSummary } from "@/lib/taskChangeSummary.js";
 import {
   deriveTaskLeadingIndicator,
+  deriveTaskThemeLeadingStatus,
   formatTaskRelativeTime,
 } from "@/lib/taskListItemPresentation.js";
 import { getTaskListAttention, getTaskListRowActivity } from "@/v4/taskListRowActivity.js";
@@ -366,6 +367,7 @@ export const MemoTaskItem = memo(function TaskListItem({
   // 月亮身份改为持久 meta 标记判断；off-peak store 反查在任务被删除后会丢失
   // 会话溯源，且让每一行多背一个全局 store 订阅。
   const isTaskOffPeak = isOffPeakTask(task);
+  const themeLeadingStatus = deriveTaskThemeLeadingStatus(leadingIndicator, hasPendingInteraction);
   const showTimelineIdleIndicator =
     variant === "timeline" && leadingIndicator === "none" && !isPinned;
   // 手机远控标记和置顶状态共用左侧 leading 槽。
@@ -570,16 +572,27 @@ export const MemoTaskItem = memo(function TaskListItem({
           )}
         >
           {leadingIndicator === "error" ? (
-            <span data-error-indicator="true" className="h-1.5 w-1.5 rounded-full bg-destructive" />
+            <span
+              data-error-indicator="true"
+              className="h-1.5 w-1.5 rounded-full bg-destructive theme-burnt-toast:hidden"
+            />
           ) : leadingIndicator === "unread" ? (
             <span
               data-unread-indicator="true"
-              className="h-1.5 w-1.5 rounded-full bg-sky-500 dark:bg-sky-400"
+              className="h-1.5 w-1.5 rounded-full bg-sky-500 dark:bg-sky-400 theme-burnt-toast:hidden"
             />
           ) : leadingIndicator === "loading" ? (
-            <LoaderIcon className="size-4 animate-spin text-foreground-subtle" />
+            <LoaderIcon className="size-4 animate-spin text-foreground-subtle theme-burnt-toast:hidden" />
           ) : showTimelineIdleIndicator ? (
-            <span data-idle-indicator="true" className="h-1.5 w-1.5 rounded-full bg-border" />
+            <span
+              data-idle-indicator="true"
+              className="h-1.5 w-1.5 rounded-full bg-border theme-burnt-toast:hidden"
+            />
+          ) : null}
+          {/* Burnt Toast 用一个左侧状态点代替上面的转圈/圆点（含“等待确认”），颜色见主题 CSS 图例；
+              其他主题下 display:none。置顶且空闲时让位给置顶图标。 */}
+          {themeLeadingStatus !== "idle" || !isPinned ? (
+            <span data-bt-status={themeLeadingStatus} className="bt-status-dot hidden" />
           ) : null}
         </span>
         {shouldRenderPinAction ? (
@@ -634,7 +647,7 @@ export const MemoTaskItem = memo(function TaskListItem({
                 onSnoozeCountdown={snoozeInteractionAutoResolution}
               />
             ) : taskAttentionDisplay ? (
-              <Badge className="h-5 shrink-0 border-transparent bg-success/14 px-2 text-ui-base font-medium text-success dark:bg-success/18">
+              <Badge className="h-5 shrink-0 border-transparent bg-success/14 px-2 text-ui-base font-medium text-success dark:bg-success/18 theme-burnt-toast:hidden">
                 {taskAttentionDisplay}
               </Badge>
             ) : null}
@@ -737,7 +750,7 @@ export const MemoTaskItem = memo(function TaskListItem({
                   onSnoozeCountdown={snoozeInteractionAutoResolution}
                 />
               ) : taskAttentionDisplay ? (
-                <Badge className="h-5 shrink-0 border-transparent bg-success/14 px-2 text-ui-sm font-medium text-success dark:bg-success/18">
+                <Badge className="h-5 shrink-0 border-transparent bg-success/14 px-2 text-ui-sm font-medium text-success dark:bg-success/18 theme-burnt-toast:hidden">
                   {taskAttentionDisplay}
                 </Badge>
               ) : null}

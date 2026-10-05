@@ -18,7 +18,9 @@ import {
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import {
   deriveTaskLeadingIndicator,
+  deriveTaskThemeLeadingStatus,
   formatTaskRelativeTime,
+  type TaskThemeLeadingStatus,
 } from "@/lib/taskListItemPresentation.js";
 import { getTaskChangeSummary } from "@/lib/taskChangeSummary.js";
 import { buildTaskWorkspaceKey } from "@/lib/taskQueryCache.js";
@@ -40,6 +42,21 @@ import { useTaskInteractionAutoResolutionSnooze } from "@/hooks/useTaskInteracti
 import { useOptionalTabStore } from "@/store/TabStoreProvider.js";
 import { isWorkspaceReadOnly } from "@/store/tabStore.js";
 import { TaskTitleOverflowText } from "@/components/TaskTitleOverflowText.js";
+
+/**
+ * Burnt Toast 主题把任务状态点放在标题左侧（时间仍在右侧），颜色由主题 CSS 按 data-bt-status 决定。
+ * 其他主题下 display:none，不参与布局；右侧原有状态元信息由同一主题 variant 隐藏。
+ */
+function ThemeLeadingStatusDot({ status }: { status: TaskThemeLeadingStatus }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="hidden size-4 shrink-0 items-center justify-center theme-burnt-toast:flex"
+    >
+      <span data-bt-status={status} className="bt-status-dot" />
+    </span>
+  );
+}
 
 function GroupedTaskRowComponent({
   task,
@@ -120,6 +137,7 @@ function GroupedTaskRowComponent({
         )
       : taskAttentionLabel;
   const leadingIndicator = deriveTaskLeadingIndicator(task, taskActivity);
+  const themeLeadingStatus = deriveTaskThemeLeadingStatus(leadingIndicator, hasPendingInteraction);
   const taskTitle =
     task.title ||
     intl.formatMessage({
@@ -175,6 +193,7 @@ function GroupedTaskRowComponent({
       )}
     >
       <span className={TASK_GROUP_ROW_LINE_CLASS}>
+        <ThemeLeadingStatusDot status={themeLeadingStatus} />
         <TaskTitleOverflowText
           as="span"
           className="text-foreground"
@@ -193,7 +212,7 @@ function GroupedTaskRowComponent({
           ) : taskAttentionDisplay ? (
             <Badge
               className={cn(
-                "h-5 border-transparent bg-success/14 px-2 text-ui-base font-medium text-success dark:bg-success/18",
+                "h-5 border-transparent bg-success/14 px-2 text-ui-base font-medium text-success dark:bg-success/18 theme-burnt-toast:hidden",
                 canShowHoverActions && "group-hover/task-row:hidden",
               )}
             >
@@ -207,9 +226,12 @@ function GroupedTaskRowComponent({
             )}
           >
             {leadingIndicator === "loading" ? (
-              <LoaderIcon className="size-3.5 animate-spin text-foreground-subtle" />
+              <LoaderIcon className="size-3.5 animate-spin text-foreground-subtle theme-burnt-toast:hidden" />
             ) : statusDotClassName ? (
-              <span aria-hidden="true" className="flex size-4 shrink-0 items-center justify-center">
+              <span
+                aria-hidden="true"
+                className="flex size-4 shrink-0 items-center justify-center theme-burnt-toast:hidden"
+              >
                 <span className={cn("size-1.5 rounded-full", statusDotClassName)} />
               </span>
             ) : null}
@@ -379,6 +401,7 @@ function GroupedTaskRowComponent({
       )}
     >
       <span className={TASK_GROUP_ROW_LINE_CLASS}>
+        <ThemeLeadingStatusDot status={themeLeadingStatus} />
         <TaskTitleOverflowText as="span" className="text-foreground" title={taskTitle}>
           {/* grouped task 标题超出时不要显示省略号，右侧渐隐能保留标题连续性，避免和右侧状态元信息挤在一起。*/}
           {taskTitle}
@@ -391,18 +414,18 @@ function GroupedTaskRowComponent({
               onSnoozeCountdown={snoozeInteractionAutoResolution}
             />
           ) : taskAttentionDisplay && !shouldSuppressTaskMetadata ? (
-            <Badge className="h-5 border-transparent bg-success/14 px-2 text-ui-base font-medium text-success dark:bg-success/18">
+            <Badge className="h-5 border-transparent bg-success/14 px-2 text-ui-base font-medium text-success dark:bg-success/18 theme-burnt-toast:hidden">
               {taskAttentionDisplay}
             </Badge>
           ) : null}
           {!shouldSuppressTaskMetadata ? (
             <span className="flex shrink-0 items-center gap-1">
               {leadingIndicator === "loading" ? (
-                <LoaderIcon className="size-3.5 animate-spin text-foreground-subtle" />
+                <LoaderIcon className="size-3.5 animate-spin text-foreground-subtle theme-burnt-toast:hidden" />
               ) : statusDotClassName ? (
                 <span
                   aria-hidden="true"
-                  className="flex size-4 shrink-0 items-center justify-center"
+                  className="flex size-4 shrink-0 items-center justify-center theme-burnt-toast:hidden"
                 >
                   <span className={cn("size-1.5 rounded-full", statusDotClassName)} />
                 </span>

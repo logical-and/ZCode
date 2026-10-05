@@ -81,7 +81,7 @@ function registerE2EStoreBridgesIfEnabled() {
       ? window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light"
-      : saved === "dark" || saved === "zai-dark"
+      : saved === "dark" || saved === "zai-dark" || saved === "burnt-toast"
         ? "dark"
         : "light";
   const appliedTheme =
@@ -89,7 +89,7 @@ function registerE2EStoreBridgesIfEnabled() {
       ? resolved === "dark"
         ? "zai-dark"
         : "zai-light"
-      : saved === "dark"
+      : saved === "dark" || saved === "burnt-toast"
         ? "zai-dark"
         : saved === "light"
           ? "zai-light"
@@ -97,6 +97,8 @@ function registerE2EStoreBridgesIfEnabled() {
   if (resolved === "dark") document.documentElement.classList.add("dark");
   document.documentElement.classList.toggle("theme-zai-light", appliedTheme === "zai-light");
   document.documentElement.classList.toggle("theme-zai-dark", appliedTheme === "zai-dark");
+  // Burnt Toast 以 Zai dark 为底座叠加覆盖，首帧就挂上避免启动闪烁。
+  document.documentElement.classList.toggle("theme-burnt-toast", saved === "burnt-toast");
 }
 
 const isMacDesktop = navigator.userAgent.includes("Mac");

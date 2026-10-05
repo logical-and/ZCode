@@ -70,8 +70,11 @@ function SummaryLeadingContent({
 >) {
   return (
     <>
+      {/* Burnt Toast：对话里保留缩小的工具图标，按最近工具卡的 data-status 轻微着色；
+          权限确认卡里改用状态点（由主题 CSS 切换）。其他主题下状态点 display:none，不影响布局。 */}
+      {showIcon ? <span aria-hidden className="tool-status-dot hidden" /> : null}
       {showIcon ? (
-        <span className="shrink-0 text-foreground-subtlest [&_svg]:text-foreground-subtlest">
+        <span className="tool-status-icon shrink-0 text-foreground-subtlest [&_svg]:text-foreground-subtlest">
           {icon}
         </span>
       ) : null}

@@ -197,11 +197,13 @@ export function TaskInteractionBadge({
   }
 
   return (
+    // Burnt Toast 用侧栏左侧的黄色状态点表达“等待确认”，静态文字徽标隐藏；
+    // 带倒计时的可点击徽标（停止计时）仍保留，因为它承载操作。
     <span
       data-task-interaction-badge={presentation.kind}
       data-slot="badge"
       data-countdown-progress={progress?.toFixed(3)}
-      className={badgeClassName}
+      className={cn(badgeClassName, "theme-burnt-toast:hidden")}
       style={style}
     >
       {badgeContent}

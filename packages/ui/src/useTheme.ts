@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 
-export type Theme = "light" | "dark" | "zai-light" | "zai-dark" | "system";
+export type Theme = "light" | "dark" | "zai-light" | "zai-dark" | "burnt-toast" | "system";
 export type ResolvedTheme = "light" | "dark";
 
 const STORAGE_KEY = "zcode-theme";
@@ -10,12 +10,17 @@ function getSystemTheme(): ResolvedTheme {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
+/** 显式选择的深色主题（不含 system）。Burnt Toast 只有深色外观，叠加在 Zai dark 之上。 */
+export function isDarkThemePreference(theme: Theme | string | null | undefined): boolean {
+  return theme === "dark" || theme === "zai-dark" || theme === "burnt-toast";
+}
+
 export function resolveTheme(theme: Theme): ResolvedTheme {
   if (theme === "system") {
     return getSystemTheme();
   }
 
-  return theme === "dark" || theme === "zai-dark" ? "dark" : "light";
+  return isDarkThemePreference(theme) ? "dark" : "light";
 }
 
 export function normalizeThemePreference(theme: Theme): Theme {
@@ -57,24 +62,30 @@ function syncBrowserThemeSurface(resolved: ResolvedTheme) {
 
 export function applyTheme(theme: Theme) {
   const resolved = resolveTheme(theme);
+  const normalizedTheme = normalizeThemePreference(theme);
+  const isBurntToast = normalizedTheme === "burnt-toast";
   const appliedTheme =
-    theme === "system"
+    theme === "system" || isBurntToast
       ? resolved === "dark"
         ? "zai-dark"
         : "zai-light"
-      : normalizeThemePreference(theme);
+      : normalizedTheme;
   document.documentElement.classList.toggle("dark", resolved === "dark");
   document.documentElement.classList.toggle("theme-zai-light", appliedTheme === "zai-light");
   document.documentElement.classList.toggle("theme-zai-dark", appliedTheme === "zai-dark");
+  // Burnt Toast 复用 Zai dark 的完整变量作为底座，只覆盖调色与密度，
+  // 这样其他依赖 theme-zai-dark 的组件无需感知新主题。
+  document.documentElement.classList.toggle("theme-burnt-toast", isBurntToast);
   syncBrowserThemeSurface(resolved);
 }
 
-function isTheme(value: string | null): value is Theme {
+export function isTheme(value: string | null | undefined): value is Theme {
   return (
     value === "light" ||
     value === "dark" ||
     value === "zai-light" ||
     value === "zai-dark" ||
+    value === "burnt-toast" ||
     value === "system"
   );
 }

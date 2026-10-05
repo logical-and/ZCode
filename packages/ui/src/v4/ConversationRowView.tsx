@@ -1282,6 +1282,7 @@ const UserInputRowView = memo(function UserInputRowView({
       {/* 手机远控没有 hover，v4 迁移时漏掉了旧 UserMessage 的常显分支，
           导致复制和编辑入口不可发现；远控直接显示，桌面端继续通过 hover/focus 降噪。 */}
       <MessageActions
+        data-v4-user-input-actions="true"
         className={cn(
           "mt-1",
           "opacity-0 transition-opacity group-hover/user-row:opacity-100 focus-within:opacity-100",
@@ -1468,7 +1469,9 @@ export const ConversationAssistantTextActions = memo(function ConversationAssist
       {/* 旧 conversation surface 删除后，V4 动作栏漏掉了消息创建时间；
           时间是 row.createdAt 的只读派生展示，不新增 renderer 状态。 */}
       {timeLabel ? (
-        <span className="select-none text-ui-sm text-foreground-subtlest">{timeLabel}</span>
+        <span className="select-none text-ui-sm text-foreground-subtlest theme-burnt-toast:ml-auto">
+          {timeLabel}
+        </span>
       ) : null}
     </MessageActions>
   );

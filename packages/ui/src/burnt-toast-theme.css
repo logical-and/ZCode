@@ -1,0 +1,319 @@
+/*
+ * Burnt Toast：紧凑的暖色深色主题。
+ *
+ * - 只有深色外观：applyTheme 会同时挂上 theme-zai-dark（完整的深色变量底座）和
+ *   theme-burnt-toast，这里只覆盖调色、字号刻度和少量密度规则。
+ * - 所有选择器都限定在 .theme-burnt-toast 下（或 theme-burnt-toast: variant），
+ *   其他主题的渲染结果不受影响。
+ * - 选择器使用 .theme-zai-dark.theme-burnt-toast 提高优先级，不依赖与 styles.css 的先后顺序。
+ */
+
+@custom-variant theme-burnt-toast (&:where(.theme-burnt-toast, .theme-burnt-toast *));
+
+.theme-zai-dark.theme-burnt-toast {
+  /* 暖灰表面 + 一个克制的烤面包橙强调色。正文对比度按 WCAG AA（>= 4.5:1）取值。 */
+  --bt-accent: #e0844f;
+  --bt-accent-soft: rgba(224, 132, 79, 0.16);
+  --bt-ink: 241, 234, 226;
+  /* 对话里的行内代码/路径：去饱和、偏亮的烤面包橙，在 #1f1d1b 上约 7:1。 */
+  --bt-code: #e6a27c;
+  /* 代码块底色与面板同色，比卡片更贴近页面背景，边框沿用主题边框色。 */
+  --bt-code-block-bg: #262321;
+
+  --animated-gradient-text-strong: rgba(var(--bt-ink), 1);
+  --animated-gradient-text-soft: rgba(var(--bt-ink), 0.24);
+  --color-background: #1f1d1b;
+  --color-background-win-alt: #2a2725;
+  --color-background-alt: color-mix(in oklab, var(--color-background-win-alt) 60%, transparent);
+  --color-brand: var(--bt-accent);
+  --color-icon-blue: #e9a27a;
+  --color-accent: #3a2a21;
+  --color-find-highlight: rgba(224, 132, 79, 0.28);
+  --color-find-highlight-active: rgba(224, 132, 79, 0.6);
+  --color-workflow-rule: rgba(var(--bt-ink), 0.06);
+  --color-workflow-trace: rgba(var(--bt-ink), 0.32);
+  --color-workflow-trace-strong: rgba(var(--bt-ink), 0.58);
+  --color-border: rgba(var(--bt-ink), 0.09);
+  --color-border-hover: rgba(var(--bt-ink), 0.15);
+  --color-hover: rgba(var(--bt-ink), 0.05);
+  --color-selected: rgba(var(--bt-ink), 0.08);
+  --color-header: #262321;
+  --color-panel: #262321;
+  --color-sidebar: #1f1d1b;
+  --color-surface: rgba(var(--bt-ink), 0.045);
+  --color-surface-hover: rgba(var(--bt-ink), 0.08);
+  --color-card: #2c2926;
+  --color-popover: #2e2b28;
+  --color-popover-header: #262321;
+  --color-input: #2c2926;
+  --color-input-border-focused: rgba(224, 132, 79, 0.45);
+  --color-terminal-bg: var(--color-background);
+  --color-terminal-cursor: var(--bt-accent);
+  --color-terminal-cursor-accent: #1f1d1b;
+  --color-terminal-selection: rgba(224, 132, 79, 0.28);
+  --color-tab: #262321;
+  --color-tab-active: #1f1d1b;
+  --color-menu: #2e2b28;
+  --color-menu-hover: #3a3633;
+  --color-primary: var(--bt-accent);
+  --color-primary-foreground: #1f1d1b;
+  --color-secondary: #36322f;
+  --color-interaction-confirmation-surface: rgba(143, 184, 116, 0.16);
+  --color-interaction-confirmation-foreground: #b3d39c;
+  --color-foreground: rgb(var(--bt-ink));
+  --color-foreground-subtle: rgba(var(--bt-ink), 0.72);
+  --color-foreground-subtlest: rgba(var(--bt-ink), 0.52);
+  --color-foreground-inverse: #1f1d1b;
+  --color-success: #8fb874;
+  --color-success-foreground: #1f1d1b;
+  --color-destructive: #e8695c;
+  --color-warning: #e6a94f;
+  --color-warning-foreground: #1f1d1b;
+  --color-diff-added: #8fb874;
+  --color-diff-removed: #e8695c;
+  --color-git-modified: #e6a94f;
+  --color-git-added: #8fb874;
+  --color-git-deleted: #e8695c;
+  --color-git-untracked: #8fb874;
+  --color-git-descendant: #e6a94f;
+  --color-toast: #2e2b28;
+  --color-tooltip: #2e2b28;
+  --color-tooltip-foreground: rgb(var(--bt-ink));
+  --color-tooltip-tag: #3a3633;
+  --color-tooltip-tag-foreground: #b8afa6;
+  --color-tag: #3a3633;
+
+  /* 字号：整体比用户设置的界面字号小 1px（默认 14px -> 13px 正文），标题刻度收窄。
+   * 仍以 --ui-font-size 为基准，用户在外观设置里调整字号时继续生效。 */
+  --text-ui-xl: calc(var(--ui-font-size) + 2px);
+  --text-ui-lg: calc(var(--ui-font-size) + 1px);
+  --text-ui-base: calc(var(--ui-font-size) - 1px);
+  --text-ui-caption: calc(var(--ui-font-size) - 2px);
+  --text-ui-sm: calc(var(--ui-font-size) - 2px);
+  --text-ui-xs: calc(var(--ui-font-size) - 4px);
+}
+
+/* === 状态点与工具图标 ===
+ * 状态色图例（侧栏任务行与权限确认卡的状态点统一使用；对话里不再画点）：
+ *   running   运行中             强调橙 --bt-accent，呼吸闪烁
+ *   waiting   等待审批/等待输入   黄色 #e2b93b，常亮（与橙色明显区分）
+ *   done      完成/成功           绿色 --color-success
+ *   failed    失败/出错           红色 --color-destructive
+ *   stopped   拒绝/停止/取消/中断  中性灰空心环（1px 描边，中心留空）
+ *   unread    未读（仅侧栏）       蓝色（避免与运行中的橙色混淆）
+ *   idle      空闲（仅侧栏）       极淡的灰点（与其他点同尺寸）
+ * 对话时间线的工具行保留小号工具图标，只做低饱和度的弱区分（--bt-icon）：
+ *   done 次要文字灰；running 带一点橙色并呼吸；waiting 低饱和黄；failed 低饱和红；stopped 更暗的灰。
+ * "Worked for" 轮次标题用文案本身表达状态（见下方 .work-status-label）：
+ *   完成为次要文字灰；运行中为强调橙并轻微呼吸；等待审批为黄色；已停止为更淡的灰。
+ * 颜色写进继承的自定义属性（--bt-dot / --bt-dot-fill / --bt-dot-animation / --bt-icon），
+ * 嵌套的工具卡会就近覆盖，所以每一行都取自己的状态。 */
+.theme-zai-dark.theme-burnt-toast {
+  --bt-status-running: var(--bt-accent);
+  --bt-status-waiting: #e2b93b;
+  --bt-status-done: var(--color-success);
+  --bt-status-failed: var(--color-destructive);
+  --bt-status-stopped: rgba(var(--bt-ink), 0.5);
+  --bt-status-unread: #6ea8e0;
+  --bt-status-idle: rgba(var(--bt-ink), 0.22);
+  /* 工具图标：以次要文字灰 #948e88 为底，各状态只混入约一半的状态色。 */
+  --bt-icon-done: #948e88;
+  --bt-icon-running: #ba896c;
+  --bt-icon-waiting: #bba462;
+  --bt-icon-failed: #be7c72;
+  --bt-icon-stopped: #736f6a;
+}
+
+/* 通用状态 → 点样式。--bt-dot-fill: initial 让实心点回落到 --bt-dot，避免继承父级的空心设置。 */
+.theme-burnt-toast [data-bt-status],
+.theme-burnt-toast [data-tool-call-id] {
+  --bt-dot: var(--bt-status-done);
+  --bt-dot-fill: initial;
+  --bt-dot-animation: none;
+  --bt-icon: var(--bt-icon-done);
+  --bt-icon-animation: none;
+}
+
+.theme-burnt-toast [data-bt-status="running"],
+.theme-burnt-toast [data-tool-call-id][data-status="pending"],
+.theme-burnt-toast [data-tool-call-id][data-status="in_progress"] {
+  --bt-dot: var(--bt-status-running);
+  --bt-dot-animation: bt-dot-pulse 1.2s ease-in-out infinite;
+  --bt-icon: var(--bt-icon-running);
+  --bt-icon-animation: bt-icon-pulse 1.6s ease-in-out infinite;
+}
+
+/* 工具行处于审批中时，v4 状态 pendingApproval 在旧 status 里只剩 "pending"；
+ * ToolCallBlock 额外标出 data-awaiting-approval，放在 pending 规则之后覆盖橙色。 */
+.theme-burnt-toast [data-bt-status="waiting"],
+.theme-burnt-toast [data-tool-call-id][data-awaiting-approval],
+.theme-burnt-toast [data-permission-request] {
+  --bt-dot: var(--bt-status-waiting);
+  --bt-dot-animation: none;
+  --bt-icon: var(--bt-icon-waiting);
+  --bt-icon-animation: none;
+}
+
+.theme-burnt-toast [data-bt-status="failed"],
+.theme-burnt-toast [data-tool-call-id][data-status="failed"] {
+  --bt-dot: var(--bt-status-failed);
+  --bt-icon: var(--bt-icon-failed);
+}
+
+.theme-burnt-toast [data-bt-status="stopped"],
+.theme-burnt-toast [data-tool-call-id][data-status="stopped"],
+.theme-burnt-toast [data-tool-call-id][data-status="denied"] {
+  --bt-dot: var(--bt-status-stopped);
+  --bt-dot-fill: transparent;
+  --bt-icon: var(--bt-icon-stopped);
+}
+
+.theme-burnt-toast [data-bt-status="unread"] {
+  --bt-dot: var(--bt-status-unread);
+}
+
+.theme-burnt-toast [data-bt-status="idle"] {
+  --bt-dot: var(--bt-status-idle);
+}
+
+/* 所有状态点同一外径 8px；空心环只描 1px 边，中心清晰可见。 */
+.theme-burnt-toast .bt-status-dot,
+.theme-burnt-toast [data-permission-request] .tool-status-dot {
+  display: block;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--bt-dot-fill, var(--bt-dot));
+  box-shadow: inset 0 0 0 1px var(--bt-dot);
+  animation: var(--bt-dot-animation, none);
+}
+
+/* 对话工具行：缩小到与正文同高的图标，按状态轻微着色；权限确认卡里隐藏图标、显示状态点。 */
+.theme-burnt-toast .tool-status-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--bt-icon, var(--bt-icon-done));
+  animation: var(--bt-icon-animation, none);
+}
+
+.theme-burnt-toast .tool-status-icon svg {
+  width: calc(var(--ui-font-size) - 1px);
+  height: calc(var(--ui-font-size) - 1px);
+  color: var(--bt-icon, var(--bt-icon-done));
+}
+
+.theme-burnt-toast [data-permission-request] .tool-status-icon {
+  display: none;
+}
+
+/* "Worked for Xs" 轮次标题：没有状态点，只给文案着色；展开箭头保持原色、不跟着呼吸。 */
+.theme-burnt-toast [data-work-state="running"] > .work-status-label {
+  color: var(--bt-status-running);
+  animation: bt-icon-pulse 1.6s ease-in-out infinite;
+}
+
+.theme-burnt-toast [data-work-state="waiting"] > .work-status-label {
+  color: var(--bt-status-waiting);
+}
+
+.theme-burnt-toast [data-work-state="interrupted"] > .work-status-label {
+  color: var(--color-foreground-subtlest);
+}
+
+@keyframes bt-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* 图标的呼吸更轻，避免在正文旁边闪得刺眼。 */
+@keyframes bt-icon-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-burnt-toast .bt-status-dot,
+  .theme-burnt-toast .tool-status-dot,
+  .theme-burnt-toast .tool-status-icon,
+  .theme-burnt-toast .work-status-label {
+    animation: none;
+  }
+}
+
+/* === 对话密度 ===
+ * 钩子都是稳定的结构标记（data-turn-id / history-message / group/assistant-*），
+ * 只在本主题下收窄间距，不改变组件结构。 */
+.theme-burnt-toast section[data-turn-id] {
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.theme-burnt-toast .group\/assistant-turn {
+  gap: 0.75rem;
+}
+
+.theme-burnt-toast .history-message > * + *:not([data-slot="collapsible-content"]) {
+  margin-top: 0.75rem;
+}
+
+/* 对话里的代码块（@pierre/diffs，12px 等宽）默认行高 20px；与正文的 1.5 行高对齐为 18px。
+ * 自定义属性会穿过 diffs-container 的 shadow root 继承下去。 */
+.theme-burnt-toast [data-conversation-selectable] {
+  --diffs-line-height: 18px;
+}
+
+/* === 用户消息气泡 ===
+ * 收紧内边距与轮次之间的留白（默认每轮顶部 56px），放宽最大宽度，让每行容纳更多文字。
+ * 只匹配带 pt-14 的轮次：以工作流通知卡开头的轮次本来就是 pt-0。 */
+.theme-burnt-toast section[data-turn-id].pt-14 {
+  padding-top: 1.5rem;
+}
+
+.theme-burnt-toast [data-v4-user-input-bubble] {
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.625rem;
+  border-top-right-radius: 0.125rem;
+}
+
+/* 悬停才出现的复制/编辑按钮移到气泡左侧同一行，不再在气泡下方占一整行（约 28px）。
+ * grid dense：其余子项（附件、状态）仍各占整行靠右，按钮回填到气泡所在行的左列。 */
+.theme-burnt-toast [data-row-id].group\/user-row {
+  display: grid;
+  grid-template-columns: minmax(min-content, 1fr) auto;
+  grid-auto-flow: row dense;
+  column-gap: 0.25rem;
+  align-items: end;
+}
+
+.theme-burnt-toast [data-row-id].group\/user-row > * {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+
+.theme-burnt-toast [data-row-id].group\/user-row > [data-v4-user-input-bubble] {
+  grid-column: 2;
+}
+
+.theme-burnt-toast [data-row-id].group\/user-row > [data-v4-user-input-actions] {
+  grid-column: 1;
+  margin-top: 0;
+}
+
+@container conversation (min-width: 624px) {
+  .theme-burnt-toast [data-v4-user-input-bubble] {
+    max-width: 48rem;
+  }
+}

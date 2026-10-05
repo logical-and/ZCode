@@ -283,6 +283,11 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
                       id: "sidebar.settings.theme.zai-light",
                     })}
                   </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="burnt-toast">
+                    {intl.formatMessage({
+                      id: "sidebar.settings.theme.burnt-toast",
+                    })}
+                  </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
