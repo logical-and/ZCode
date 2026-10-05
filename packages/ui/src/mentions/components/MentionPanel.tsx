@@ -258,7 +258,8 @@ export function MentionPanel({
       {virtualRows.length > 0 ? (
         <div
           ref={scrollContainerRef}
-          className="max-h-56 overflow-y-auto px-1 py-0.75"
+          // 浮动容器（行内编辑）按可用空间收紧列表高度；未设置变量时保持 14rem。
+          className="max-h-[var(--prompt-trigger-panel-list-max-height,14rem)] overflow-y-auto px-1 py-0.75"
           role="listbox"
           aria-label={title}
           onMouseLeave={() => setHoveredOptionIndex(null)}

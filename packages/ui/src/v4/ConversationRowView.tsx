@@ -1058,6 +1058,7 @@ const UserInputRowView = memo(function UserInputRowView({
           showMentionButton
           showSlashButton
           enableWorkspaceFileDrop
+          triggerPanelPlacement="auto"
           topContent={
             editAttachments.length > 0 || editContextCount > 0 ? (
               <div className="flex max-w-full flex-col items-start gap-2">

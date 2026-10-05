@@ -29,6 +29,7 @@ import { appendWorkspaceFileMentionToComposer } from "@/lib/workspaceFileCompose
 import { usePromptEditorDragState } from "@/prompt-editor/usePromptEditorDragState.js";
 import { ChatPromptActionMenu } from "@/prompt-editor/ChatPromptActionMenu.js";
 import { useComposerToolbarFit } from "@/prompt-editor/useComposerToolbarFit.js";
+import { FloatingTriggerPanelContainer } from "@/prompt-editor/FloatingTriggerPanelContainer.js";
 
 function runAfterFrame(callback: () => void) {
   if (typeof requestAnimationFrame === "function") {
@@ -71,6 +72,7 @@ export function ChatPromptEditor({
   inputApiRef,
   onModeSwitchContainerChange,
   triggerPanelContainer,
+  triggerPanelPlacement = "top",
   promptHistory,
   className,
   shellClassName,
@@ -128,6 +130,11 @@ export function ChatPromptEditor({
   inputApiRef?: MutableRefObject<LexicalChatInputHandle | null>;
   onModeSwitchContainerChange?: (container: HTMLSpanElement | null) => void;
   triggerPanelContainer?: HTMLElement | null;
+  /**
+   * `/`、`@` 提示面板的位置：`top` 固定在编辑器上方（底部 Composer）；`auto` 用于会话滚动区内的
+   * 行内编辑，面板挂到 body 并按上下可用空间选边，避免首条消息编辑时被滚动区顶部裁切。
+   */
+  triggerPanelPlacement?: "top" | "auto";
   promptHistory?: readonly string[];
   className?: string;
   shellClassName?: string;
@@ -156,6 +163,14 @@ export function ChatPromptEditor({
   const [internalTriggerPanelContainer, setInternalTriggerPanelContainer] =
     useState<HTMLDivElement | null>(null);
   const resolvedTriggerPanelContainer = triggerPanelContainer ?? internalTriggerPanelContainer;
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const [floatingTriggerPanelContainer, setFloatingTriggerPanelContainer] =
+    useState<HTMLDivElement | null>(null);
+  const floatingTriggerPanelEnabled = triggerPanelPlacement === "auto" && !triggerPanelContainer;
+  // 动作菜单（Radix Popover 自带碰撞翻转）仍以编辑器上沿为锚点；只有 `/`、`@` 面板改用浮动容器。
+  const inputTriggerPanelContainer = floatingTriggerPanelEnabled
+    ? floatingTriggerPanelContainer
+    : resolvedTriggerPanelContainer;
   const latestTextRef = useRef(initialValue ?? "");
   const hasSyncedInitialValueRef = useRef(false);
   const {
@@ -332,7 +347,18 @@ export function ChatPromptEditor({
       : undefined;
 
   return (
-    <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className={cn("relative", className)}>
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      onKeyDown={handleKeyDown}
+      className={cn("relative", className)}
+    >
+      {floatingTriggerPanelEnabled ? (
+        <FloatingTriggerPanelContainer
+          anchorRef={formRef}
+          onContainerChange={setFloatingTriggerPanelContainer}
+        />
+      ) : null}
       {triggerPanelContainer ? null : (
         <div
           ref={setInternalTriggerPanelContainer}
@@ -370,7 +396,7 @@ export function ChatPromptEditor({
           onModifiedSubmit={onModifiedSubmit}
           onChange={handleTextChange}
           onFocus={onFocus}
-          triggerPanelContainer={resolvedTriggerPanelContainer}
+          triggerPanelContainer={inputTriggerPanelContainer}
           workspacePath={workspacePath}
           workspaceIdentity={workspaceIdentity}
           taskId={taskId}
