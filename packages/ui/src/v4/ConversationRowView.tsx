@@ -980,21 +980,6 @@ const UserInputRowView = memo(function UserInputRowView({
 
   const canEdit = Boolean(onEdit && row.entityId);
   const bubbleClickToEdit = useUserInputBubbleClickToEdit(canEdit ? handleOpenEdit : undefined);
-  const forkPlan = context.onForkUserInput ? context.userInputForkPlans?.get(row.rowId) : undefined;
-  const onForkUserInput = context.onForkUserInput;
-  const forkChatLabel = intl.formatMessage({ id: "chat.message.forkChat" });
-  const forkChatTooltip = forkPlan
-    ? intl.formatMessage({ id: `chat.message.forkChat.tooltip.${forkPlan.mode}` })
-    : forkChatLabel;
-  const handleForkChat = useCallback(() => {
-    if (!forkPlan || !onForkUserInput) return;
-    runUserAction({
-      input: { featureId: "conversation.history.branch", action: "fork", trigger: "button" },
-      operation: () => onForkUserInput(forkPlan, parsedShareContext.visibleContent),
-      completed: { resultSource: "optimistic_projection" },
-      failureStage: "fork",
-    });
-  }, [forkPlan, onForkUserInput, parsedShareContext.visibleContent]);
 
   const handleCancelEdit = useCallback(() => {
     setDraft(parsedShareContext.visibleContent);
@@ -1327,18 +1312,6 @@ const UserInputRowView = memo(function UserInputRowView({
             onClick={handleOpenEdit}
           >
             <PencilIcon className="size-3.5" />
-          </MessageAction>
-        ) : null}
-        {forkPlan ? (
-          <MessageAction
-            aria-label={forkChatLabel}
-            label={forkChatLabel}
-            tooltip={forkChatTooltip}
-            data-testid={`v4-user-fork-${row.rowId}`}
-            data-v4-user-fork-mode={forkPlan.mode}
-            onClick={handleForkChat}
-          >
-            <TrendingUpDownIcon className="size-3.5" />
           </MessageAction>
         ) : null}
       </MessageActions>

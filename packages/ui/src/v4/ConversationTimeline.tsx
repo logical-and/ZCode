@@ -87,7 +87,6 @@ import {
   type TimelineUserScrollIntent,
 } from "@/v4/timelineScrollAnchor.js";
 import { useConversationTimelineFind } from "@/v4/useConversationTimelineFind.js";
-import { useUserInputForkRowContext, type UserInputForkHandler } from "@/v4/userInputFork.js";
 import { ConversationSelectionTooltip } from "@/v4/ConversationSelectionTooltip.js";
 import type { ConversationSelectionReference } from "@/lib/conversationSelectionReference.js";
 
@@ -265,8 +264,6 @@ interface ConversationTimelineProps {
   /** 行渲染上下文（theme/codePreviewSettings/workspacePath）；宿主保证引用稳定。 */
   rowContext: ConversationRowRenderContext;
   onFork?: (target: ConversationRowTarget) => void;
-  /** 用户消息上的 "Fork chat"；边界由 userInputFork.ts 按 canFork 解析。缺省即隐藏入口。 */
-  onForkUserInput?: UserInputForkHandler;
   onRetry?: (target: ConversationRowTarget) => void;
   onFeedbackChange?: AssistantFeedbackHandler;
   onEdit?: (
@@ -361,7 +358,6 @@ function ConversationTimelineImpl({
   scrollMemoryKey = null,
   rowContext,
   onFork,
-  onForkUserInput,
   onRetry,
   onFeedbackChange,
   onEdit,
@@ -430,7 +426,6 @@ function ConversationTimelineImpl({
     () => splitConversationTimelineLiveTail(renderUnits),
     [renderUnits],
   );
-  const turnRowContext = useUserInputForkRowContext(rowContext, renderUnits, onForkUserInput);
   const hasRunningUnit = useMemo(() => renderUnits.some((unit) => unit.isRunning), [renderUnits]);
   const turnNavigatorQueryRowIds = useMemo(
     () =>
@@ -1846,7 +1841,7 @@ function ConversationTimelineImpl({
                       <ConversationTurnGroup
                         unit={unit}
                         apiRetry={null}
-                        context={turnRowContext}
+                        context={rowContext}
                         onFork={onFork}
                         onRetry={onRetry}
                         onFeedbackChange={onFeedbackChange}
@@ -1876,7 +1871,7 @@ function ConversationTimelineImpl({
                   <ConversationTurnGroup
                     unit={liveUnit}
                     apiRetry={apiRetry}
-                    context={turnRowContext}
+                    context={rowContext}
                     onFork={onFork}
                     onRetry={onRetry}
                     onFeedbackChange={onFeedbackChange}
