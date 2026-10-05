@@ -92,6 +92,7 @@ import {
 import type { ModelSelectionSource } from "@/v4/composer/V4ComposerToolbar.js";
 import { formatModelChangeLabel } from "@/v4/composer/modelTriggerDisplay.js";
 import { resolveAppFollowupMode } from "@/v4/composer/followupModeSettings.js";
+import { persistV4ComposerDraft } from "@/v4/composer/composerDraftStore.js";
 import {
   createComposerSubmissionConfig,
   type ComposerSubmissionConfig,
@@ -132,6 +133,7 @@ import { WorkspaceHookPendingBanner } from "@/v4/WorkspaceHookPendingBanner.js";
 import { ConversationStatusPanel } from "@/v4/ConversationStatusPanel.js";
 import { SessionSubscriptionErrorPanel } from "@/v4/SessionSubscriptionErrorPanel.js";
 import { ConversationTimeline } from "@/v4/ConversationTimeline.js";
+import type { UserInputForkHandler } from "@/v4/userInputFork.js";
 import { ConversationShareImportNotice } from "@/v4/ConversationShareImportNotice.js";
 import { ConversationShareConfirmationDock } from "@/v4/ConversationShareConfirmationDock.js";
 import { ConversationShareSuccessDock } from "@/v4/ConversationShareSuccessDock.js";
@@ -3020,29 +3022,75 @@ export function SessionPane({
     [clearQueueEditOperation],
   );
 
-  const handleFork = useCallback(
-    (target: ConversationRowTarget) => {
+  /**
+   * 提交 forkAssistant 并切到 child session；返回 child sessionId，被拒绝时返回 null。
+   * prepareChild 在切换前执行，用于预写 child 的 composer 草稿。
+   */
+  const dispatchFork = useCallback(
+    async (
+      target: ConversationRowTarget,
+      prepareChild?: (childSessionId: string) => void,
+    ): Promise<string | null> => {
       const current = snapshotRef.current;
-      if (!sessionId || current === null) return;
+      if (!sessionId || current === null) return null;
       // forkAssistant 是 CAS 命令：baseRevision 取当前投影 revision。
-      void dispatchCommand(
+      const ack = await dispatchCommand(
         "forkAssistant",
         { target },
         sessionId,
         current.revision,
         current.logEpoch,
-      ).then((ack) => {
-        if (ack.status !== "accepted" && ack.status !== "duplicate") {
-          logger.warn(`[v4-pane] fork 被拒绝: ${ack.status} ${ack.reasonCode ?? ""}`);
-          return;
-        }
-        if (ack.result?.type === "forkAssistant") {
-          // 原地切到 child session（与新建会话同一选择路径）。
-          onSessionCreated?.(ack.result.sessionId);
-        }
-      });
+      );
+      if (ack.status !== "accepted" && ack.status !== "duplicate") {
+        logger.warn(`[v4-pane] fork 被拒绝: ${ack.status} ${ack.reasonCode ?? ""}`);
+        return null;
+      }
+      if (ack.result?.type !== "forkAssistant") return null;
+      prepareChild?.(ack.result.sessionId);
+      // 原地切到 child session（与新建会话同一选择路径）。
+      onSessionCreated?.(ack.result.sessionId);
+      return ack.result.sessionId;
     },
     [dispatchCommand, onSessionCreated, sessionId],
+  );
+
+  const handleFork = useCallback(
+    (target: ConversationRowTarget) => {
+      void dispatchFork(target);
+    },
+    [dispatchFork],
+  );
+
+  const handleForkUserInput = useCallback<UserInputForkHandler>(
+    (plan, composerText) => {
+      const reportFailure = (error: string) => {
+        toast(intl.formatMessage({ id: "chat.message.fork.failed" }, { error }));
+      };
+      // 本轮还没有可 fork 的回复时，child 只含之前的历史；把这条消息写成 child 的
+      // composer 草稿（不自动发送）。必须在切换前写入：composer 切 scope 时按 sessionId
+      // 读取持久草稿，切换后再写会被空草稿覆盖。
+      const prepareChild =
+        plan.mode === "beforeMessage" && composerText.trim()
+          ? (childSessionId: string) => {
+              persistV4ComposerDraft(workspacePath, workspaceIdentity, childSessionId, {
+                text: composerText,
+              });
+            }
+          : undefined;
+      void dispatchFork(plan.target, prepareChild).then(
+        (childSessionId) => {
+          if (childSessionId === null) {
+            reportFailure(intl.formatMessage({ id: "chat.message.forkChat.rejected" }));
+          }
+        },
+        (error: unknown) => {
+          const message = error instanceof Error ? error.message : String(error);
+          logger.warn("[v4-pane] 用户消息 fork 提交失败", { error: message });
+          reportFailure(message);
+        },
+      );
+    },
+    [dispatchFork, intl, workspaceIdentity, workspacePath],
   );
 
   const handleEdit = useCallback(
@@ -4744,6 +4792,7 @@ export function SessionPane({
               scrollMemoryKey={timelineScrollMemoryKey}
               rowContext={rowContext}
               onFork={forkActionsEnabled ? handleFork : undefined}
+              onForkUserInput={forkActionsEnabled ? handleForkUserInput : undefined}
               onRetry={retryActionsEnabled ? handleRetry : undefined}
               onFeedbackChange={
                 !readOnly && !selectionSideChat && sessionId ? handleAssistantFeedback : undefined

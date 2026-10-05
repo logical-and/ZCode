@@ -102,6 +102,7 @@ import {
 import { resolveProviderLabel } from "@/lib/registryProviderView.js";
 import type { LexicalChatInputHandle } from "@/LexicalChatInput.js";
 import { ChatPromptEditor } from "@/prompt-editor/ChatPromptEditor.js";
+import { useUserInputBubbleClickToEdit } from "@/v4/useUserInputBubbleClickToEdit.js";
 import { resolveToolCallIdentity } from "@/lib/toolIdentity.js";
 import {
   isConversationReasoningRowVisible,
@@ -977,6 +978,24 @@ const UserInputRowView = memo(function UserInputRowView({
     setEditing(true);
   }, [parsedPrompt, parsedShareContext, row.attachments]);
 
+  const canEdit = Boolean(onEdit && row.entityId);
+  const bubbleClickToEdit = useUserInputBubbleClickToEdit(canEdit ? handleOpenEdit : undefined);
+  const forkPlan = context.onForkUserInput ? context.userInputForkPlans?.get(row.rowId) : undefined;
+  const onForkUserInput = context.onForkUserInput;
+  const forkChatLabel = intl.formatMessage({ id: "chat.message.forkChat" });
+  const forkChatTooltip = forkPlan
+    ? intl.formatMessage({ id: `chat.message.forkChat.tooltip.${forkPlan.mode}` })
+    : forkChatLabel;
+  const handleForkChat = useCallback(() => {
+    if (!forkPlan || !onForkUserInput) return;
+    runUserAction({
+      input: { featureId: "conversation.history.branch", action: "fork", trigger: "button" },
+      operation: () => onForkUserInput(forkPlan, parsedShareContext.visibleContent),
+      completed: { resultSource: "optimistic_projection" },
+      failureStage: "fork",
+    });
+  }, [forkPlan, onForkUserInput, parsedShareContext.visibleContent]);
+
   const handleCancelEdit = useCallback(() => {
     setDraft(parsedShareContext.visibleContent);
     setEditAttachments([...(row.attachments ?? [])]);
@@ -1256,7 +1275,14 @@ const UserInputRowView = memo(function UserInputRowView({
         // 气泡保留 flex item 的自动宽度；宿主至少 624px 时再以 36rem 封顶并保留 48px 余量。
         <div
           data-v4-user-input-bubble="true"
-          className="flex max-w-full flex-col gap-2 rounded-xl rounded-tr-xs border border-border bg-surface px-4 py-3 text-ui-base text-foreground @min-[624px]/conversation:max-w-xl"
+          data-v4-user-input-click-to-edit={bubbleClickToEdit ? "true" : undefined}
+          onPointerDown={bubbleClickToEdit?.onPointerDown}
+          onClick={bubbleClickToEdit?.onClick}
+          className={cn(
+            "flex max-w-full flex-col gap-2 rounded-xl rounded-tr-xs border border-border bg-surface px-4 py-3 text-ui-base text-foreground @min-[624px]/conversation:max-w-xl",
+            // 单击即编辑：仅用边框 hover 暗示可点，不改尺寸，避免布局跳动。
+            bubbleClickToEdit && "transition-colors hover:border-border-hover",
+          )}
         >
           {hasVisibleText ? (
             <ConversationUserInputBody contentText={visibleText} rowId={row.rowId}>
@@ -1282,6 +1308,7 @@ const UserInputRowView = memo(function UserInputRowView({
       {/* 手机远控没有 hover，v4 迁移时漏掉了旧 UserMessage 的常显分支，
           导致复制和编辑入口不可发现；远控直接显示，桌面端继续通过 hover/focus 降噪。 */}
       <MessageActions
+        data-v4-user-input-actions="true"
         className={cn(
           "mt-1",
           "opacity-0 transition-opacity group-hover/user-row:opacity-100 focus-within:opacity-100",
@@ -1292,7 +1319,7 @@ const UserInputRowView = memo(function UserInputRowView({
           rowId={row.rowId}
           label={intl.formatMessage({ id: "chat.message.copy" })}
         />
-        {onEdit && row.entityId ? (
+        {canEdit ? (
           <MessageAction
             label={intl.formatMessage({ id: "chat.message.edit" })}
             tooltip={intl.formatMessage({ id: "chat.message.edit" })}
@@ -1300,6 +1327,18 @@ const UserInputRowView = memo(function UserInputRowView({
             onClick={handleOpenEdit}
           >
             <PencilIcon className="size-3.5" />
+          </MessageAction>
+        ) : null}
+        {forkPlan ? (
+          <MessageAction
+            aria-label={forkChatLabel}
+            label={forkChatLabel}
+            tooltip={forkChatTooltip}
+            data-testid={`v4-user-fork-${row.rowId}`}
+            data-v4-user-fork-mode={forkPlan.mode}
+            onClick={handleForkChat}
+          >
+            <TrendingUpDownIcon className="size-3.5" />
           </MessageAction>
         ) : null}
       </MessageActions>

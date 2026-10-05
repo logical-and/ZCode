@@ -12,6 +12,7 @@ import type { WorkflowDraftPosition, WorkflowRunCardSummary } from "@/ToolCallBl
 import type { Theme } from "@/useTheme.js";
 import type { ModelSelectionView } from "@zcode/services";
 import type { ConversationAttachmentReadParams, ConversationTransport } from "@/v4/transport.js";
+import type { UserInputForkHandler, UserInputForkPlan } from "@/v4/userInputFork.js";
 import type {
   OpenPlanDetailSideTabRequest,
   OpenWorkflowActorSessionSideTabRequest,
@@ -184,6 +185,9 @@ export interface ConversationRowRenderContext {
   readAttachmentRange?: (
     params: Parameters<ConversationTransport["attachmentReadRange"]>[0],
   ) => ReturnType<ConversationTransport["attachmentReadRange"]>;
+  /** 用户消息 "Fork chat" 的边界与入口；只由 timeline 在可 fork 时注入（见 userInputFork.ts）。 */
+  userInputForkPlans?: ReadonlyMap<number, UserInputForkPlan>;
+  onForkUserInput?: UserInputForkHandler;
 }
 
 export interface ConversationFileChangesRequestOptions {

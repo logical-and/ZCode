@@ -4578,6 +4578,12 @@ const enUS: Record<string, string> = {
   "chat.message.disliked": "Disliked",
   "chat.message.fork": "Fork",
   "chat.message.forking": "Forking...",
+  "chat.message.forkChat": "Fork chat",
+  "chat.message.forkChat.tooltip.includeTurn":
+    "Fork chat: new chat with the conversation up to this reply",
+  "chat.message.forkChat.tooltip.beforeMessage":
+    "Fork chat: new chat from before this message, with it in the input",
+  "chat.message.forkChat.rejected": "the fork point is no longer available",
   "chat.message.fork.unavailable": "Fork after task finishes",
   "chat.message.fork.unsupported": "The current agent does not support forking yet",
   "chat.message.fork.failed": "Could not fork session: {error}",

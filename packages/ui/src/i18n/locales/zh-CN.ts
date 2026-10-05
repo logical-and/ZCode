@@ -4281,6 +4281,11 @@ const zhCN: Record<string, string> = {
   "chat.message.disliked": "已踩",
   "chat.message.fork": "分叉",
   "chat.message.forking": "正在分叉...",
+  "chat.message.forkChat": "分叉对话",
+  "chat.message.forkChat.tooltip.includeTurn": "分叉对话：新对话包含到本轮回复为止的内容",
+  "chat.message.forkChat.tooltip.beforeMessage":
+    "分叉对话：从这条消息之前开始新对话，并把它放入输入框",
+  "chat.message.forkChat.rejected": "分叉点已不可用",
   "chat.message.fork.unavailable": "任务结束后可分叉",
   "chat.message.fork.unsupported": "当前agent暂不支持分叉功能",
   "chat.message.fork.failed": "分叉会话失败：{error}",
